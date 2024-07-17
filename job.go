@@ -97,6 +97,10 @@ type JobResponse struct {
 	Views            []ViewData  `json:"views"`
 }
 
+func (j *JobResponse) IsEnabled() bool {
+	return j.Color != "disabled"
+}
+
 func (j *Job) parentBase() string {
 	return j.Base[:strings.LastIndex(j.Base, "/job/")]
 }
@@ -119,7 +123,6 @@ func (j *Job) GetDescription() string {
 func (j *Job) GetDetails() *JobResponse {
 	return j.Raw
 }
-
 func (j *Job) GetBuild(ctx context.Context, id int64) (*Build, error) {
 
 	// Support customized server URL,
@@ -412,7 +415,7 @@ func (j *Job) IsEnabled(ctx context.Context) (bool, error) {
 	if _, err := j.Poll(ctx); err != nil {
 		return false, err
 	}
-	return j.Raw.Color != "disabled", nil
+	return j.Raw.IsEnabled(), nil
 }
 
 func (j *Job) HasQueuedBuild() {
