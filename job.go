@@ -87,6 +87,12 @@ type JobResponse struct {
 	NextBuildNumber       int64    `json:"nextBuildNumber"`
 	Property              []struct {
 		ParameterDefinitions []ParameterDefinition `json:"parameterDefinitions"`
+		Class                string                `json:"_class"`
+		Branch               struct {
+			Head struct {
+				Class string `json:"_class"`
+			} `json:"head"`
+		} `json:"branch"`
 	} `json:"property"`
 	QueueItem        interface{} `json:"queueItem"`
 	Scm              struct{}    `json:"scm"`
@@ -520,7 +526,7 @@ func (j *Job) Invoke(ctx context.Context, files []string, skipIfRunning bool, pa
 }
 
 func (j *Job) Poll(ctx context.Context) (int, error) {
-	response, err := j.Jenkins.Requester.GetJSON(ctx, j.Base, j.Raw, nil)
+	response, err := j.Jenkins.Requester.GetJSON(ctx, j.Base, j.Raw, map[string]string{"depth": "1"})
 	if err != nil {
 		return 0, err
 	}
